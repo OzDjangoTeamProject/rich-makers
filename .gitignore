@@ -1,0 +1,53 @@
+# ==========================================
+# RichMakers Project - .gitignore
+# ==========================================
+
+### 1. 운영체제 (OS) ###
+.DS_Store
+Thumbs.db
+desktop.ini
+.AppleDouble
+.LSOverride
+
+### 2. 파이썬 & 가상환경 (Python & Venv) ###
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+env/
+venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.python-version
+
+### 3. 장고 & 로컬 설정 (Django & Local Settings) ###
+# 민감한 설정 정보 및 환경 변수
+.env
+*.log
+local_settings.py
+
+# 정적 파일 및 미디어 (업로드 파일)
+staticfiles/
+media/
+
+### 4. 데이터베이스 (Databases) ###
+*.sqlite3
+*.sqlite3-journal
+*.db
+*.db-shm
+*.db-wal
+
+### 5. 에디터 및 툴 (IDE & Tools) ###
+.idea/
+.vscode/
+*.swp
+*.swo
+
+### 6. 도커 (Docker - 선택 사항) ###
+# 데이터 보존을 위한 볼륨 폴더가 로컬에 생성될 경우 제외
+# pgdata/ (만약 docker-compose 볼륨을 로컬 폴더로 지정했다면)
+
+# ==========================================
+# End of .gitignore
+# ==========================================

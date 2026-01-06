@@ -1,0 +1,38 @@
+[project]
+name = "richmakers"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "django>=6.0",
+    "django-environ>=0.12.0",
+    "djangorestframework>=3.16.1",
+    "drf-spectacular>=0.29.0",
+    "gunicorn>=23.0.0",
+    "psycopg2-binary>=2.9.11",
+]
+
+[dependency-groups]
+dev = [
+    "ipython>=9.9.0",
+    "pytest>=9.0.2",
+    "ruff>=0.14.10",
+]
+prod = [
+    "gunicorn>=23.0.0",
+]
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint] # 이 섹션 안으로 이동
+select = ["E", "F", "I"]
+fixable = ["ALL"]
+
+[tool.ruff.format]
+quote-style = "double"
+
+[tool.ruff.lint.per-file-ignores]
+"config/settings/*.py" = ["E501"] # 설정 파일들은 줄 길이 검사 제외
+"main.py" = ["E501"]              # 기본 생성된 주석 에러 제외
