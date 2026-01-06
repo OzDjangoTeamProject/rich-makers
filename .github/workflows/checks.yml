@@ -1,0 +1,58 @@
+name: Code Quality Checks
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: ${{ secrets.DB_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          POSTGRES_DB: ${{ secrets.DB_NAME }}
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+
+    - name: Install uv
+      run: |
+        curl -LsSf https://astral.sh/uv/install.sh | sh
+        echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+    - name: Install Packages
+      run: uv sync --all-packages
+
+    - name: Run Ruff Check (Linting)
+      run: uv run ruff check .
+
+    - name: Run Django Migrations & Test
+      env:
+        # DB 연결 정보 주입
+        POSTGRES_DB: ${{ secrets.DB_NAME }}
+        POSTGRES_USER: ${{ secrets.DB_USER }}
+        POSTGRES_PASSWORD: ${{ secrets.DB_PASSWORD }}
+        DB_HOST: localhost
+        DB_PORT: 5432
+      run: |
+        uv run python manage.py migrate
+        uv run python manage.py test
