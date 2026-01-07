@@ -3,18 +3,42 @@ name = "rich-makers"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = "==3.13.1"
 dependencies = [
     "django==6.0.1",
     "django-environ==0.12.0",
     "djangorestframework==3.16.1",
     "drf-spectacular==0.29.0",
+    "psycopg[binary]>=3.3.2",
 ]
 
 [dependency-groups]
 dev = [
-    "ruff>=0.14.10",
+    "ruff==0.14.10",
 ]
 prod = [
     "gunicorn>=23.0.0",
+    "uvicorn>=0.30.0",
+    "uvicorn-worker>=0.4.0",
 ]
+[tool.ruff]
+line-length = 120 # 한 줄의 최대 길이를 120자로 설정 (와이드 스타일)
+target-version = "py313" # 대상 파이썬 버전 지정
+
+
+[tool.ruff.lint] # 검사할 규칙 목록 (기본 규칙 + Import 정렬 + 불필요한 코드 제거)
+select = [
+    "E",   # pycodestyle 에러
+    "W",   # pycodestyle 경고
+    "F",   # Pyflakes (문법 오류)
+    "I",   # isort (Import 정렬)
+    "B",   # flake8-bugbear (잠재적 버그)
+    "C4",  # flake8-comprehensions (리스트 컴프리헨션 최적화)
+    "UP",  # pyupgrade (최신 파이썬 문법 권장)
+]
+
+fixable = ["ALL"] # 자동으로 고쳐줄 수 있는 규칙들 설정
+
+[tool.ruff.format] # 포맷터 설정 (Black 스타일 준수)
+quote-style = "double"
+indent-style = "space"
