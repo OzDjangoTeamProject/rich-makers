@@ -1,5 +1,6 @@
-from .base import *  # noqa: F403
 from pathlib import Path
+
+from .base import *  # noqa: F403
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 

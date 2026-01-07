@@ -86,22 +86,20 @@ WSGI_APPLICATION = "config.wsgi.application"
 
 # config/settings/base.py
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'rich_makers',          # .env의 POSTGRES_DB와 일치해야 함
-        'USER': 'postgres',          # .env의 POSTGRES_USER와 일치해야 함
-        'PASSWORD': 'password123',   # 본인이 설정한 비밀번호
-        'HOST': 'db',                # docker-compose의 서비스 이름
-        'PORT': '5432',
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": "rich_makers",  # .env의 POSTGRES_DB와 일치해야 함
+        "USER": "postgres",  # .env의 POSTGRES_USER와 일치해야 함
+        "PASSWORD": "password123",  # 본인이 설정한 비밀번호
+        "HOST": "db",  # docker-compose의 서비스 이름
+        "PORT": "5432",
     }
 }
 
 
 # [비밀번호 검증] 보안 정책 설정
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"
-    },
+    {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
     {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
     {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
