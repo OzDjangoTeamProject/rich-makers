@@ -1,0 +1,55 @@
+# ==============================================================================
+# [ RichMakers Project .gitignore ]
+# 가계부 시스템 개발을 위한 Git 추적 제외 설정
+# ==============================================================================
+
+### 🐍 Python & Django ###
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.env
+.venv
+pip-log.txt
+pip-delete-this-directory.txt
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+
+### 📂 Django Media & Static ###
+# 사용자 업로드 파일 및 정적 파일 제외
+media/
+staticfiles/
+
+### 🗄️ Database ###
+# 로컬 개발용 DB 파일 제외 (실제 운영은 Postgres 사용 예정)
+*.sqlite3
+*.sqlite3-journal
+*.db
+*.db-shm
+*.db-wal
+
+### 🚀 Celery & Task Queue ###
+celerybeat-schedule
+celerybeat.pid
+
+### 💻 OS & IDE (macOS, Windows, VS Code, PyCharm) ###
+.DS_Store
+.AppleDouble
+.LSOverride
+Thumbs.db
+desktop.ini
+
+.idea/
+.vscode/
+*.swp
+*.bak
+*.tmp
+
+### 🐳 Docker ###
+# 도커 관련 임시 파일이나 로그가 필요할 경우 추가
+.docker/
