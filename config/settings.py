@@ -39,11 +39,16 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "rest_framework",
+    "rest_framework.authtoken",
+    "rest_framework_simplejwt.token_blacklist"
     "drf_spectacular",
 ]
 
 REST_FRAMEWORK = {
-    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    "DEFAULT_SCHEMA_CLASS": (
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+        "drf_spectacular.openapi.AutoSchema"
+    ),
 }
 
 SPECTACULAR_SETTINGS = {
@@ -97,10 +102,15 @@ DATABASES = {
     }
 }
 
+AUTH_USER_MODEL = "apps.accounts.CustomUser"
+
+
+
+
+
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",

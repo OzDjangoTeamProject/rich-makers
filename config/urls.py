@@ -1,11 +1,11 @@
 from django.contrib import admin
 from django.urls import path
+from views import RegisterView
 from drf_spectacular.views import (
     SpectacularAPIView,
     SpectacularRedocView,
     SpectacularSwaggerView,
 )
-
 # config/urls.py
 
 urlpatterns = [
@@ -18,4 +18,6 @@ urlpatterns = [
         name="swagger-ui",
     ),
     path("api/redoc/", SpectacularRedocView.as_view(url_name="schema"), name="redoc"),
+    path('accounts/', includ("django.contrib.auth.urls")),
+    path("signup/", RegisterView()),
 ]
