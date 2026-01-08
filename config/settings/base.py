@@ -45,7 +45,12 @@ THIRD_APPS = [
 ]
 
 OWN_APPS = [
-    # 향후 추가될 비즈니스 로직 앱들
+    # 비즈니스 로직 앱들
+    'apps.users',
+    'apps.accounts',
+    'apps.transactions',
+    'apps.analysis',
+    'apps.notifications',
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_APPS + OWN_APPS
@@ -121,3 +126,6 @@ SPECTACULAR_SETTINGS = {
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
 }
+
+# Custom User Model
+AUTH_USER_MODEL = 'users.User'

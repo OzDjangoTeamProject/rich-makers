@@ -1,6 +1,6 @@
 from django.db import models
 from django.conf import settings
-from constants import BANK_CODES
+from apps.constants import BANK_CODES
 
 
 class Account(models.Model):
