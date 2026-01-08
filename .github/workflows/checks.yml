@@ -1,0 +1,81 @@
+# GitHub Actions 워크플로우의 이름입니다.
+name: Django 프로젝트 품질 및 연결 체크 🛠️
+
+# 어떤 이벤트가 발생했을 때 이 체크를 실행할지 결정합니다.
+on:
+  # main 브랜치에 코드가 push(업로드)될 때 실행합니다.
+  push:
+    branches: ["main"]
+  # main 브랜치를 대상으로 Pull Request(합치기 요청)가 생성될 때 실행합니다.
+  pull_request:
+    branches: ["main"]
+
+# 실제 수행할 작업(Job)들을 정의합니다.
+jobs:
+  # 'django-checks'라는 이름의 작업을 만듭니다.
+  django-checks:
+    # 가장 최신 버전의 Ubuntu 리눅스 환경에서 실행합니다.
+    runs-on: ubuntu-latest
+
+    # 프로젝트 실행에 필요한 외부 서비스(데이터베이스 등)를 설정합니다.
+    services:
+      # 'db'라는 이름으로 PostgreSQL 서비스를 띄웁니다.
+      db:
+        image: postgres:15-alpine
+        # GitHub Secrets에 저장한 DB 접속 정보를 가져와서 환경 변수로 설정합니다.
+        env:
+          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+        # 외부 통신을 위한 포트를 연결합니다. (기본 5432 포트)
+        ports:
+          - 5432:5432
+        # 데이터베이스가 완전히 켜질 때까지 기다리는 헬스 체크 설정입니다.
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    # 작업 내에서 순차적으로 실행될 단계(Step)들을 정의합니다.
+    steps:
+      # 1. 저장소에 올린 코드를 가상 환경으로 가져옵니다.
+      - name: 코드 가져오기 📥
+        uses: actions/checkout@v4
+
+      # 2. 파이썬 패키지 관리 도구인 'uv'를 설치합니다.
+      - name: uv 설치하기 ⚡
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: "latest"
+
+      # 3. 프로젝트에 필요한 파이썬 버전(3.13.1)을 설치합니다.
+      - name: 파이썬 설치하기 (3.13.1) 🐍
+        run: uv python install 3.13.1
+
+      # 4. pyproject.toml에 명시된 모든 라이브러리를 설치합니다.
+      - name: 의존성 패키지 설치하기 📦
+        run: uv sync --all-groups
+
+      # 5. Ruff 도구를 사용하여 코드 스타일과 문법 오류를 검사합니다.
+      - name: 코드 품질 검사 (Ruff) 🎨
+        run: uv run ruff check .
+
+      # 6. 데이터베이스 마이그레이션이 정상적으로 수행되는지 확인합니다.
+      - name: DB 마이그레이션 실행 테스트 🚀
+        env:
+          # 가상 환경의 DB에 접속하기 위해 HOST를 localhost로 잠시 변경하여 적용합니다.
+          DATABASE_URL: postgres://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@localhost:5432/${{ secrets.POSTGRES_DB }}
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          DJANGO_SETTINGS_MODULE: config.settings.dev
+        run: |
+          uv run python manage.py migrate --noinput
+
+      # 7. (도전 미션) 장고 유닛 테스트를 실행합니다.
+      - name: Django 테스트 실행 ✅
+        env:
+          DATABASE_URL: postgres://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@localhost:5432/${{ secrets.POSTGRES_DB }}
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          DJANGO_SETTINGS_MODULE: config.settings.dev
+        run: |
+          uv run python manage.py test

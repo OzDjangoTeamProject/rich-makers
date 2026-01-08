@@ -1,0 +1,39 @@
+name: Django CI with Docker
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  # 1️⃣ 첫 번째 작업: 코드 스타일 및 문법 검사 (Lint)
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Run Ruff Check
+        # pyproject.toml에 정의된 규칙대로 검사합니다.
+        run: uv run ruff check .
+
+  # 2️⃣ 두 번째 작업: 도커 빌드 테스트 (Lint가 성공해야 실행됨)
+  build:
+    needs: lint  # 스타일 검사가 통과해야 빌드를 시작합니다.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker Image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: false
+          load: true
+          tags: rich-makers-web:latest
