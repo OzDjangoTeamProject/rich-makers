@@ -30,7 +30,8 @@ RUN /app/.venv/bin/python -c "import django; print('Django:', django.get_version
 # 소스 코드 복사
 COPY . .
 
-RUN chmod +x scripts/run.sh
+# Windows CRLF -> LF 변환 + 실행권한 (Mac/Windows 공통 안정화)
+RUN sed -i 's/\r$//' scripts/run.sh && chmod +x scripts/run.sh
 
 ENV VIRTUAL_ENV=/app/.venv
 ENV PATH="/app/.venv/bin:$PATH"

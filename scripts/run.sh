@@ -5,7 +5,6 @@ echo "✨ Starting application..."
 
 PY="/app/.venv/bin/python"
 
-# 가상환경이 실제로 있는지/장고가 설치됐는지 즉시 확인 (여기서 바로 진단 가능)
 echo "🔎 Python executable: $($PY -c 'import sys; print(sys.executable)')"
 echo "🔎 Django version: $($PY -c 'import django; print(django.get_version())')"
 
@@ -36,4 +35,3 @@ exec gunicorn config.wsgi:application \
   --bind 0.0.0.0:8000 \
   --workers "${GUNICORN_WORKERS:-3}" \
   --timeout "${GUNICORN_TIMEOUT:-60}"
-

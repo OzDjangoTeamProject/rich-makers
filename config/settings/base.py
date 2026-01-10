@@ -37,19 +37,92 @@ DJANGO_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django.contrib.sites",  # django-allauth에서 필요
 ]
 
 THIRD_APPS = [
     "rest_framework",
     "drf_spectacular",
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
+    "allauth.socialaccount.providers.google",
+    "allauth.socialaccount.providers.kakao",
+    "allauth.socialaccount.providers.naver",
 ]
 
 OWN_APPS = [
-    # 향후 추가될 비즈니스 로직 앱들
+    #"users",
+    #"accounts",
+    #"transactions",
+    #"analysis",
+    #"notifications",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_APPS + OWN_APPS
 
+# [인증 설정] 커스텀 User 모델 지정
+#AUTH_USER_MODEL = "users.User"
+
+# [인증 백엔드] django-allauth 인증 백엔드 추가
+AUTHENTICATION_BACKENDS = [
+    "django.contrib.auth.backends.ModelBackend",
+    "allauth.account.auth_backends.AuthenticationBackend",
+]
+
+# [django-allauth 설정]
+ACCOUNT_AUTHENTICATION_METHOD = "email"  # 이메일 또는 사용자명으로 로그인 가능
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_UNIQUE_EMAIL = True
+ACCOUNT_USERNAME_REQUIRED = True  # AbstractUser 사용으로 username 필수
+ACCOUNT_EMAIL_VERIFICATION = "optional"  # 이메일 인증은 선택사항
+
+# [소셜 로그인 설정] 인증만 수행 (자동 회원가입, 이메일만 요청)
+SOCIALACCOUNT_AUTO_SIGNUP = True  # 소셜 로그인 시 자동 회원가입 (인증만 수행)
+SOCIALACCOUNT_EMAIL_VERIFICATION = "none"  # 소셜 로그인은 이메일 인증 생략
+SOCIALACCOUNT_QUERY_EMAIL = True  # 이메일 정보만 요청
+
+# [로그인 후 리다이렉트 설정] 프로필 기능 없음, 루트로 리다이렉트
+LOGIN_REDIRECT_URL = "/"
+ACCOUNT_LOGIN_REDIRECT_URL = "/"
+ACCOUNT_SIGNUP_REDIRECT_URL = "/"
+ACCOUNT_LOGOUT_REDIRECT_URL = "/"
+# 로그아웃 시 GET 요청 허용
+ACCOUNT_LOGOUT_ON_GET = True
+# 로그아웃 메시지 제거를 위한 커스텀 어댑터
+ACCOUNT_ADAPTER = "config.adapter.CustomAccountAdapter"
+
+SITE_ID = 1
+
+SOCIALACCOUNT_PROVIDERS = {
+    "google": {
+        "APP": {
+            "client_id": env("GOOGLE_CLIENT_ID", default=""),
+            "secret": env("GOOGLE_SECRET", default=""),
+            "key": "",
+        },
+        "SCOPE": [
+            "email",
+        ],
+        "AUTH_PARAMS": {
+            "access_type": "online",
+        },
+    },
+    "kakao": {
+        "APP": {
+            "client_id": env("KAKAO_CLIENT_ID", default=""),
+            "secret": env("KAKAO_SECRET", default=""),
+            "key": "",
+        },
+    },
+    "naver": {
+        "APP": {
+            "client_id": env("NAVER_CLIENT_ID", default=""),
+            "secret": env("NAVER_SECRET", default=""),
+            "key": "",
+        },
+    },
+}
 
 # [미들웨어 설정] 요청/응답 처리 파이프라인
 MIDDLEWARE = [
@@ -60,6 +133,8 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "allauth.account.middleware.AccountMiddleware",
+
 ]
 
 ROOT_URLCONF = "config.urls"
@@ -88,6 +163,7 @@ WSGI_APPLICATION = "config.wsgi.application"
 DATABASES = {
     "default": env.db(),
 }
+
 
 
 # [비밀번호 검증] 보안 정책 설정
