@@ -89,8 +89,6 @@ ACCOUNT_SIGNUP_REDIRECT_URL = "/"
 ACCOUNT_LOGOUT_REDIRECT_URL = "/"
 # 로그아웃 시 GET 요청 허용
 ACCOUNT_LOGOUT_ON_GET = True
-# 로그아웃 메시지 제거를 위한 커스텀 어댑터
-ACCOUNT_ADAPTER = "config.adapter.CustomAccountAdapter"
 
 SITE_ID = 1
 
