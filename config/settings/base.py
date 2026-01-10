@@ -93,26 +93,6 @@ ACCOUNT_LOGOUT_ON_GET = True
 SITE_ID = 1
 
 SOCIALACCOUNT_PROVIDERS = {
-    "google": {
-        "APP": {
-            "client_id": env("GOOGLE_CLIENT_ID", default=""),
-            "secret": env("GOOGLE_SECRET", default=""),
-            "key": "",
-        },
-        "SCOPE": [
-            "email",
-        ],
-        "AUTH_PARAMS": {
-            "access_type": "online",
-        },
-    },
-    "kakao": {
-        "APP": {
-            "client_id": env("KAKAO_CLIENT_ID", default=""),
-            "secret": env("KAKAO_SECRET", default=""),
-            "key": "",
-        },
-    },
     "naver": {
         "APP": {
             "client_id": env("NAVER_CLIENT_ID", default=""),
