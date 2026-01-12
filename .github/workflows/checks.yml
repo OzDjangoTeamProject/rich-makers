@@ -5,10 +5,10 @@ name: Django 프로젝트 품질 및 연결 체크 🛠️
 on:
   # main 브랜치에 코드가 push(업로드)될 때 실행합니다.
   push:
-    branches: ["main"]
+    branches: ["main", "dev"] # dev 추가
   # main 브랜치를 대상으로 Pull Request(합치기 요청)가 생성될 때 실행합니다.
   pull_request:
-    branches: ["main"]
+    branches: ["main", "dev"] # dev 추가
 
 # 실제 수행할 작업(Job)들을 정의합니다.
 jobs:
