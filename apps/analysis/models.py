@@ -1,13 +1,9 @@
-from django.db import models
 from django.conf import settings
+from django.db import models
 
 
 class Analysis(models.Model):
-    user = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-        related_name='requests'
-    )
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="requests")
 
     # 분석 대상 (INCOME/EXPENSE)
     target_type = models.CharField(max_length=10)

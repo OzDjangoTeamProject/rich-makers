@@ -1,13 +1,10 @@
 from django.db import models
+
 from apps.accounts.models import Account
 
 
 class TransactionHistory(models.Model):
-    account = models.ForeignKey(
-        Account,
-        on_delete=models.CASCADE,
-        related_name='records'
-    )
+    account = models.ForeignKey(Account, on_delete=models.CASCADE, related_name="records")
     amount = models.BigIntegerField()
     balance_after_tx = models.BigIntegerField()
     tx_detail = models.CharField(max_length=255)  # 상세내용
