@@ -45,7 +45,7 @@ THIRD_APPS = [
 ]
 
 OWN_APPS = [
-    # 비즈니스 로직 앱들
+    # 비즈니스 로직 앱들docker compose -f docker-compose.dev.yml down
     "apps.users",
     "apps.accounts",
     "apps.transactions",
