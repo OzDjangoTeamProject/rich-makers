@@ -26,6 +26,10 @@ docs_urlpatterns = [
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+
     # analysis API
     path("api/analysis/", include("apps.analysis.urls")),
+
+    # notification API
+    path("api/notifications/", include("apps.notifications.urls")),
 ] + docs_urlpatterns
