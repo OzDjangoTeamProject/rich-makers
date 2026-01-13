@@ -4,24 +4,31 @@ version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = "==3.13.1"
-dependencies = [
-    "django==6.0.1",
-    "django-environ==0.12.0",
-    "djangorestframework==3.16.1",
-    "drf-spectacular==0.29.0",
-    "psycopg[binary]>=3.3.2",
-]
+dependencies = []  # 기본 dependencies는 prod 그룹으로 이동
 
 [dependency-groups]
 dev = [
     "pre-commit>=4.5.1",
     "ruff==0.14.10",
 ]
+
 prod = [
+    "django==6.0.1",
+    "django-environ==0.12.0",
+    "djangorestframework==3.16.1",
+    "drf-spectacular==0.29.0",
+    "psycopg[binary]>=3.3.2",
     "gunicorn>=23.0.0",
     "uvicorn>=0.30.0",
     "uvicorn-worker>=0.4.0",
+
+    # 분석용 라이브러리
+    "pandas>=2.3",
+    "numpy>=2.4",
+    "matplotlib>=3.9",
 ]
+
+
 [tool.ruff]
 line-length = 120 # 한 줄의 최대 길이를 120자로 설정 (와이드 스타일)
 target-version = "py313" # 대상 파이썬 버전 지정
