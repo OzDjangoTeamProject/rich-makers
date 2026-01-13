@@ -1,5 +1,5 @@
 from django.contrib import admin
-from django.urls import path
+from django.urls import include, path
 from drf_spectacular.views import (
     SpectacularAPIView,  # 프로젝트의 API 설계도(Schema)를 생성합니다.
     SpectacularRedocView,  # 정적이고 깔끔한 문서 위주의 화면입니다.
@@ -26,4 +26,6 @@ docs_urlpatterns = [
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-] + docs_urlpatterns  # 문서화 관련 URL 합치기
+    # analysis API
+    path("api/analysis/", include("apps.analysis.urls")),
+] + docs_urlpatterns

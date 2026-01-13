@@ -10,9 +10,13 @@ ENV UV_LINK_MODE=copy
 # uv가 사용할 가상환경 위치를 강제로 /app/.venv로 고정
 ENV UV_PROJECT_ENVIRONMENT=/app/.venv
 
-# run.sh가 bash를 사용하므로 bash 설치
-RUN apt-get update && apt-get install -y --no-install-recommends bash \
+# run.sh가 bash를 사용하므로 bash 설치 + 한글 폰트 설치
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    bash \
+    fonts-nanum \
+    fontconfig \
  && rm -rf /var/lib/apt/lists/*
+
 
 WORKDIR /app
 

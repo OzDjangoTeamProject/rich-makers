@@ -3,11 +3,28 @@ from datetime import date
 
 import pandas as pd
 import matplotlib.pyplot as plt
+import matplotlib
+from matplotlib import font_manager
 
 from django.conf import settings
 
 from apps.transactions.models import TransactionHistory
 from apps.analysis.models import Analysis
+
+
+# 🔽 한글 폰트 설정 (최소, 안전)
+def _set_korean_font():
+    candidates = ["NanumGothic", "Noto Sans CJK KR", "Noto Sans KR"]
+    available = {f.name for f in font_manager.fontManager.ttflist}
+
+    for name in candidates:
+        if name in available:
+            matplotlib.rcParams["font.family"] = name
+            matplotlib.rcParams["axes.unicode_minus"] = False
+            break
+
+
+_set_korean_font()
 
 
 class Analyzer:
