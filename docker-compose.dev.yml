@@ -1,6 +1,5 @@
-version: '3.9'
-
 services:
+  # 데이터 저장소인 PostgreSQL을 실행
   db:
     image: postgres:15-alpine
     restart: always
@@ -15,9 +14,13 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+  # 서버가 켜질 때 순차적으로 해야 할 일을 적어둔 메뉴얼
   web:
     build: .
     command: ["bash", "scripts/run.sh"]
+    volumes:
+      - .:/app
+      - /app/.venv
     env_file:
       - .env
     environment:

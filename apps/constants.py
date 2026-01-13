@@ -131,3 +131,18 @@ ANALYSIS_ABOUT = [
     ("TOTAL_SPENDING", "총 지출"),
     ("TOTAL_INCOME", "총 수입"),
 ]
+
+# 카테고리 분류
+TRANSACTION_CATEGORY = [
+    ("FOOD", "식비"),
+    ("TRANSPORT", "교통"),
+    ("LIVING", "주거/통신"),
+    ("HEALTH", "의료/건강"),
+    ("CULTURE", "문화/여가"),
+    ("EDUCATION", "교육"),
+    ("SAVING", "저축/투자"),
+    ("ETC", "기타"),
+]
+
+# 회원 종류
+MEMBERSHIP_CHOICES = [("FREE", "무료 회원"), ("PREMIUM", "유료 회원")]
