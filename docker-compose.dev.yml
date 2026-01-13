@@ -1,4 +1,4 @@
-version: '3.9'
+version: "3.9"
 
 services:
   db:
@@ -32,9 +32,42 @@ services:
       - "8000:8000"
     depends_on:
       - db
-
     volumes:
       - .:/app
       - /app/.venv
+
+  # =========================
+  # Celery + Redis
+  # =========================
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+  celery_worker:
+    build: .
+    command: celery -A config worker -l INFO
+    env_file:
+      - .env
+    depends_on:
+      - db
+      - redis
+    volumes:
+      - .:/app
+      - /app/.venv
+
+  celery_beat:
+    build: .
+    command: celery -A config beat -l INFO
+    env_file:
+      - .env
+    depends_on:
+      - db
+      - redis
+    volumes:
+      - .:/app
+      - /app/.venv
+
 volumes:
-  postgres_data: {}   # 빈 mapping 형태
+  postgres_data: {}

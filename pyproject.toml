@@ -21,6 +21,8 @@ prod = [
     "gunicorn>=23.0.0",
     "uvicorn>=0.30.0",
     "uvicorn-worker>=0.4.0",
+    "celery>=5.4.0",
+    "redis>=5.0.0",
 
     # 분석용 라이브러리
     "pandas>=2.3",

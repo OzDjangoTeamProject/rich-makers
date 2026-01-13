@@ -9,6 +9,7 @@ import os
 from pathlib import Path
 
 import environ
+from celery.schedules import crontab
 
 # [경로 설정] 프로젝트 루트 디렉터리 정의
 # 위치: rich-makers/config/settings/base.py -> 상위 3단계가 Root
@@ -45,7 +46,7 @@ THIRD_APPS = [
 ]
 
 OWN_APPS = [
-    # 비즈니스 로직 앱들docker compose -f docker-compose.dev.yml down
+    # 비즈니스 로직 앱들
     "apps.users",
     "apps.accounts",
     "apps.transactions",
@@ -89,7 +90,7 @@ TEMPLATES = [
 WSGI_APPLICATION = "config.wsgi.application"
 
 
-# config/settings/base.py
+# [DB 설정]
 DATABASES = {
     "default": env.db(),
 }
@@ -129,3 +130,34 @@ SPECTACULAR_SETTINGS = {
 
 # Custom User Model
 AUTH_USER_MODEL = "users.User"
+
+
+# ===========
+# Celery 설정
+# ===========
+
+# Redis를 Celery Broker로 사용
+CELERY_BROKER_URL = env(
+    "CELERY_BROKER_URL",
+    default="redis://redis:6379/0",
+)
+
+# 직렬화 방식 (안전한 JSON)
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+
+# 시간대 설정 (Django와 일치)
+CELERY_TIMEZONE = TIME_ZONE
+CELERY_ENABLE_UTC = False
+
+
+# =========================
+# Celery Beat Schedule
+# =========================
+CELERY_BEAT_SCHEDULE = {
+    # 매일 00:10 (Asia/Seoul) → 어제 지출 분석
+    "daily-expense-analysis-for-all-users": {
+        "task": "apps.analysis.tasks.run_daily_expense_analysis_for_all_users",
+        "schedule": crontab(hour=0, minute=10),
+    }
+}
