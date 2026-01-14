@@ -1,3 +1,4 @@
+# Python 3.13 버전이 설치된 가벼운 리눅스 기반으로 시작해
 FROM python:3.13.1-slim
 
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
@@ -11,8 +12,11 @@ ENV UV_LINK_MODE=copy
 ENV UV_PROJECT_ENVIRONMENT=/app/.venv
 
 # run.sh가 bash를 사용하므로 bash 설치
-RUN apt-get update && apt-get install -y --no-install-recommends bash \
- && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    bash \
+    fonts-nanum \
+    fontconfig \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
@@ -20,6 +24,7 @@ WORKDIR /app
 COPY pyproject.toml uv.lock ./
 
 # venv 생성 + prod 그룹 포함 설치
+# 프로젝트에 필요한 재료들을 실제로 설치
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv venv /app/.venv && \
     uv sync --frozen --no-install-project --no-dev --group prod

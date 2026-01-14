@@ -1,6 +1,5 @@
-version: '3.9'
-
 services:
+  # 데이터 저장소인 PostgreSQL을 실행
   db:
     image: postgres:15-alpine
     restart: always
@@ -15,9 +14,13 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+  # Django 웹 서버 설정
   web:
     build: .
     command: ["bash", "scripts/run.sh"]
+    volumes:
+      - .:/app
+      - /app/.venv
     env_file:
       - .env
     environment:
@@ -25,14 +28,49 @@ services:
       - DJANGO_DB_HOST=db
       - DJANGO_DB_PORT=5432
       - WAIT_FOR_DB=1
-      - COLLECTSTATIC=0
-      - GUNICORN_WORKERS=3
-      - GUNICORN_TIMEOUT=60
+      - COLLECTSTATIC=1
     ports:
       - "8000:8000"
     depends_on:
       - db
 
+  # Celery 브로커 역할을 하는 Redis
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+  # 백그라운드 작업을 수행하는 Celery 워커
+  celery-worker:
+    build: .
+    command: [ "python", "-m", "celery", "-A", "config", "worker", "-l", "info" ]
+    volumes:
+      - .:/app
+      - /app/.venv
+    env_file:
+      - .env
+    environment:
+      - DJANGO_SETTINGS_MODULE=config.settings.dev  # ✅ 장고 설정을 읽기 위해 필수
+      - DJANGO_DB_HOST=db
+    depends_on:
+      - db
+      - redis
+
+  # 정해진 시간에 작업을 명령하는 Celery 비트
+  celery-beat:
+    build: .
+    command: [ "python", "-m", "celery", "-A", "config", "beat", "-l", "info", "--scheduler", "django_celery_beat.schedulers:DatabaseScheduler" ]
+    volumes:
+      - .:/app
+      - /app/.venv
+    env_file:
+      - .env
+    environment:
+      - DJANGO_SETTINGS_MODULE=config.settings.dev  # ✅ 장고 설정을 읽기 위해 필수
+      - DJANGO_DB_HOST=db
+    depends_on:
+      - db
+      - redis
+
 volumes:
   postgres_data:
-
