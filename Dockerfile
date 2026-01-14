@@ -12,8 +12,11 @@ ENV UV_LINK_MODE=copy
 ENV UV_PROJECT_ENVIRONMENT=/app/.venv
 
 # run.sh가 bash를 사용하므로 bash 설치
-RUN apt-get update && apt-get install -y --no-install-recommends bash \
- && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    bash \
+    fonts-nanum \
+    fontconfig \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
