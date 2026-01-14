@@ -6,6 +6,7 @@ Django 공통 설정 (Base Settings)
 """
 
 import os
+from datetime import timedelta
 from pathlib import Path
 
 import environ
@@ -37,15 +38,27 @@ DJANGO_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django.contrib.sites",  # ✅ 필수 추가 (allauth용)
 ]
 
 THIRD_APPS = [
     "rest_framework",
+    "rest_framework.authtoken",  # ✅ 필수 추가 (dj-rest-auth용)
     "drf_spectacular",
+    "rest_framework_simplejwt.token_blacklist",
+    # 소셜 로그인 관련
+    "dj_rest_auth",
+    "dj_rest_auth.registration",
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
+    "allauth.socialaccount.providers.google",
+    # 셀러리 관련 (THIRD_APPS로 이동 권장)
+    "django_celery_beat",
+    "django_celery_results",
 ]
 
 OWN_APPS = [
-    # 비즈니스 로직 앱들
     "apps.users",
     "apps.accounts",
     "apps.transactions",
@@ -55,16 +68,44 @@ OWN_APPS = [
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_APPS + OWN_APPS
 
+# ✅ 이 설정도 반드시 파일 어딘가에 있어야 합니다!
+SITE_ID = 1
+
+# 소셜 로그인 설정 (필수)
+SOCIALACCOUNT_PROVIDERS = {
+    "google": {
+        "SCOPE": ["profile", "email"],
+        "AUTH_PARAMS": {"access_type": "online"},
+    }
+}
+
+# 기본 로그인 설정 유지
+REST_AUTH = {
+    "USE_JWT": True,
+    "JWT_AUTH_COOKIE": "access",
+    "JWT_AUTH_REFRESH_COOKIE": "refresh",
+}
+
+# Celery Settings
+CELERY_BROKER_URL = "redis://redis:6379/0"  # Redis 컨테이너 주소
+CELERY_RESULT_BACKEND = "django-db"  # 결과를 DB에 저장
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_TIMEZONE = "Asia/Seoul"
+DJANGO_CELERY_BEAT_TZ_AWARE = False
+
 
 # [미들웨어 설정] 요청/응답 처리 파이프라인
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "allauth.account.middleware.AccountMiddleware",
 ]
 
 ROOT_URLCONF = "config.urls"
@@ -111,13 +152,17 @@ USE_I18N = True
 USE_TZ = True
 
 
-# [정적 파일] CSS, JS, Images 경로 설정
-STATIC_URL = "static/"
-
-
 # [DRF & Spectacular] API 문서화 자동화 설정
 REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    "DEFAULT_AUTHENTICATION_CLASSES": ("rest_framework_simplejwt.authentication.JWTAuthentication",),
+}
+
+# JWT 상세 설정 (필요시 기간 조절 가능)
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+    "ROTATE_REFRESH_TOKENS": True,
 }
 
 SPECTACULAR_SETTINGS = {
@@ -125,7 +170,27 @@ SPECTACULAR_SETTINGS = {
     "DESCRIPTION": "가계부 서비스 프로젝트 API 문서입니다.",
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
+    "SECURITY": [
+        {"BearerAuth": []},
+    ],
+    "COMPONENT_SPLIT_PATCH": True,
 }
 
 # Custom User Model
 AUTH_USER_MODEL = "users.User"
+
+STATIC_URL = "static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
+
+MEDIA_URL = "/media/"
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+
+# config/settings/base.py 하단
+AUTHENTICATION_BACKENDS = [
+    "django.contrib.auth.backends.ModelBackend",
+    "allauth.account.auth_backends.AuthenticationBackend",
+]
+
+# 로그인이 성공하면 어디로 보낼지 설정
+LOGIN_REDIRECT_URL = "/admin/"  # 테스트를 위해 일단 어드민으로 리다이렉트
+SOCIALACCOUNT_LOGIN_ON_GET = True  # 중간 확인 페이지 없이 바로 구글 로그인창을 띄움

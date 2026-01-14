@@ -1,44 +1,77 @@
-from django.core.exceptions import ValidationError
 from django.db import models, transaction
+from rest_framework.exceptions import ValidationError
 
-from apps.accounts.models import Account
-from apps.constants import TRANSACTION_CATEGORY
+from apps.accounts.models import Account  #
 
 
-class TransactionHistory(models.Model):
+class Transaction(models.Model):
     """
-    거래 내역 기록 및 계좌 잔액 자동 업데이트 모델
+    계좌의 입출금 내역을 기록하는 모델입니다.
     """
 
-    account = models.ForeignKey(Account, on_delete=models.CASCADE, related_name="records", verbose_name="연결된 계좌")
-    amount = models.DecimalField(max_digits=20, decimal_places=2, verbose_name="거래 금액")
-    balance_after_tx = models.DecimalField(max_digits=20, decimal_places=2, editable=False, verbose_name="거래 후 잔액")
-    tx_detail = models.CharField(max_length=255, verbose_name="거래 상세 내용")
-    category = models.CharField(max_length=20, choices=TRANSACTION_CATEGORY, default="ETC", verbose_name="카테고리")
-    tx_type = models.CharField(max_length=10, verbose_name="거래 타입")  # DEPOSIT / WITHDRAW
-    payment_method = models.CharField(max_length=15, verbose_name="결제 수단")
-    created_at = models.DateTimeField(auto_now_add=True, db_index=True, verbose_name="거래 일시")
+    TRANSACTION_TYPE_CHOICES = [
+        ("DEPOSIT", "입금"),
+        ("WITHDRAW", "출금"),
+    ]
 
-    @transaction.atomic
-    def save(self, *args, **kwargs):
-        # 1. DB에서 계좌 정보를 가져오며 잠금(Lock)
-        account = Account.objects.select_for_update().get(pk=self.account.pk)
+    # 연결된 계좌
+    account = models.ForeignKey(Account, on_delete=models.CASCADE, related_name="transactions")
 
-        # 2. 새로운 거래 생성 시 잔액 계산
-        if not self.pk:
-            if self.tx_type == "DEPOSIT":
-                account.balance += self.amount
-            elif self.tx_type == "WITHDRAW":
-                if account.balance < self.amount:
-                    raise ValidationError("계좌 잔액이 부족합니다.")
-                account.balance -= self.amount
+    # 거래 금액
+    amount = models.DecimalField(max_digits=15, decimal_places=0, verbose_name="거래 금액")
 
-            # 계좌 잔액 업데이트 후 저장
-            account.save()
-            # 현재 거래 내역에 '계산된 잔액' 기록
-            self.balance_after_tx = account.balance
+    # 거래 유형 (입금/출금)
+    transaction_type = models.CharField(max_length=10, choices=TRANSACTION_TYPE_CHOICES, verbose_name="거래 유형")
 
-        super().save(*args, **kwargs)
+    # 거래 후 잔액 (나중에 내역을 조회할 때 당시 잔액을 알기 위함)
+    balance_after_transaction = models.DecimalField(max_digits=15, decimal_places=0, verbose_name="거래 후 잔액")
+
+    # 거래 내용 (예: 편의점, 월급)
+    description = models.CharField(max_length=255, blank=True, verbose_name="거래 내용")
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]  # 최신 거래가 위로 오도록 설정
 
     def __str__(self):
-        return f"[{self.tx_type}] {self.tx_detail} ({self.amount}원)"
+        return f"{self.account.account_name} - {self.transaction_type} ({self.amount})"
+
+    def save(self, *args, **kwargs):
+        with transaction.atomic():
+            account = self.account
+            if not self.pk:  # 🆕 신규 생성
+                if self.transaction_type == "DEPOSIT":
+                    account.balance += self.amount
+                else:
+                    if account.balance < self.amount:
+                        raise ValidationError("잔액이 부족합니다.")
+                    account.balance -= self.amount
+            else:  # 🔄 기존 내역 수정 (어드민/API 공통)
+                old_instance = Transaction.objects.get(pk=self.pk)
+                # 1. 기존 금액 롤백
+                if old_instance.transaction_type == "DEPOSIT":
+                    account.balance -= old_instance.amount
+                else:
+                    account.balance += old_instance.amount
+                # 2. 새로운 금액 적용
+                if self.transaction_type == "DEPOSIT":
+                    account.balance += self.amount
+                else:
+                    if account.balance < self.amount:
+                        raise ValidationError("잔액이 부족합니다.")
+                    account.balance -= self.amount
+
+            account.save()
+            self.balance_after_transaction = account.balance
+            super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):  # 🔙 삭제 로직
+        with transaction.atomic():
+            account = self.account
+            if self.transaction_type == "DEPOSIT":
+                account.balance -= self.amount
+            else:
+                account.balance += self.amount
+            account.save()
+            super().delete(*args, **kwargs)

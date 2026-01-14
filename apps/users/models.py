@@ -15,11 +15,18 @@ class User(AbstractUser):
 
     email = models.EmailField(unique=True)  # 중복 가입 방지
 
+    # 닉네임 필드 추가
+    nickname = models.CharField(max_length=100, blank=True, verbose_name="닉네임")
+
     # 전화번호 유효성 검사 (010-0000-0000 형식)
     phone_regex = RegexValidator(
         regex=r"^01([0|1|6|7|8|9])-?([0-9]{3,4})-?([0-9]{4})$", message="전화번호 형식이 올바르지 않습니다."
     )
-    phone_number = models.CharField(validators=[phone_regex], max_length=20)
+    phone_number = models.CharField(
+        validators=[phone_regex],
+        max_length=20,
+        blank=True,  # 회원가입 시 필수값이 아닐 수 있으므로 blank=True 추천
+    )
 
     # membership_status: FREE, PREMIUM 관리
     membership_status = models.CharField(
