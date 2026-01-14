@@ -61,26 +61,31 @@ jobs:
       - name: 코드 품질 검사 (Ruff) 🎨
         run: uv run ruff check .
 
-      # 6. 데이터베이스 마이그레이션이 정상적으로 수행되는지 확인합니다.
+      # 6. 데이터베이스 마이그레이션 실행 테스트
       - name: DB 마이그레이션 실행 테스트 🚀
         env:
           DATABASE_URL: postgres://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@localhost:5432/${{ secrets.POSTGRES_DB }}
+          # ✅ 아래 DB_HOST 변수를 추가하세요! (또는 유저님의 settings에서 사용하는 호스트 변수명)
+          DB_HOST: localhost
+          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
           DJANGO_SETTINGS_MODULE: config.settings.dev
         run: |
-          # 1. 커스텀 유저 모델이 포함된 users 앱의 마이그레이션을 먼저 생성/확인합니다.
           uv run python manage.py makemigrations users
-          
-          # 2. users 앱을 먼저 migrate 하여 테이블을 생성합니다.
           uv run python manage.py migrate users
-          
-          # 3. 나머지 앱들에 대해 전체 migrate를 실행합니다.
           uv run python manage.py migrate --noinput
 
-      # 7. (도전 미션) 장고 유닛 테스트를 실행합니다.
+      # 7. 장고 유닛 테스트 실행
       - name: Django 테스트 실행 ✅
         env:
           DATABASE_URL: postgres://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@localhost:5432/${{ secrets.POSTGRES_DB }}
+          # ✅ 여기도 DB_HOST를 추가하세요!
+          DB_HOST: localhost
+          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
           DJANGO_SETTINGS_MODULE: config.settings.dev
         run: |
