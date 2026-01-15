@@ -202,9 +202,7 @@ This project is licensed under the **MIT License**.
 
 ---
 ## 👩‍💻 Developers 
-- Github: @dotory-60, @Ryu_GY, @schicksal36
 
-
-
-
- 햣
+- **[@dotory-60](https://github.com/dotory-60)**: User·Transaction 기능 구현 및 프로젝트 전반 환경 설정
+- **[@Ryu_GY](https://github.com/Ryu_GY)**: 모델 설계, Analysis·Notification 기능 구현
+- **[@schicksal36](https://github.com/schicksal36)**: API 스펙 설계
